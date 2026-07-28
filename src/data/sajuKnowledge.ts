@@ -3,6 +3,8 @@ export interface DayPillar {
   branch: string;
   element: '목' | '화' | '토' | '금' | '수';
   elementHanja: string;
+  stemHanja: string;
+  stemMeaning: string;
   ganji: string;
 }
 
@@ -20,6 +22,20 @@ const STEM_ELEMENT: Record<string, { element: DayPillar['element']; hanja: strin
   신: { element: '금', hanja: '金' },
   임: { element: '수', hanja: '水' },
   계: { element: '수', hanja: '水' },
+};
+
+/** 십간(十干)의 한자와 훈음 — 자원(字源)상의 전통적 의미 */
+export const STEM_MEANING: Record<string, { hanja: string; meaning: string }> = {
+  갑: { hanja: '甲', meaning: '첫째 갑 · 씨앗의 껍질을 뚫고 나오는 새싹' },
+  을: { hanja: '乙', meaning: '둘째 을 · 굽어 자라나는 여린 새싹' },
+  병: { hanja: '丙', meaning: '셋째 병 · 밝게 타오르는 빛' },
+  정: { hanja: '丁', meaning: '넷째 정 · 장성하여 단단해진 것' },
+  무: { hanja: '戊', meaning: '다섯째 무 · 무성하게 우거짐' },
+  기: { hanja: '己', meaning: '여섯째 기 · 자기 자신, 정리된 몸' },
+  경: { hanja: '庚', meaning: '일곱째 경 · 결실을 맺고 단단해짐' },
+  신: { hanja: '辛', meaning: '여덟째 신 · 매섭게 여물어감' },
+  임: { hanja: '壬', meaning: '아홉째 임 · 안에 품어 잉태함' },
+  계: { hanja: '癸', meaning: '열째 계 · 헤아려 다음을 준비함' },
 };
 
 /** 그레고리력 날짜를 율리우스일(JDN)로 변환 (Fliegel & Van Flandern 공식) */
@@ -45,12 +61,15 @@ export function getDayPillar(birthDate: string): DayPillar | null {
   const stem = STEMS[((jdn + 9) % 10 + 10) % 10];
   const branch = BRANCHES[((jdn + 1) % 12 + 12) % 12];
   const meta = STEM_ELEMENT[stem];
+  const stemMeta = STEM_MEANING[stem];
 
   return {
     stem,
     branch,
     element: meta.element,
     elementHanja: meta.hanja,
+    stemHanja: stemMeta.hanja,
+    stemMeaning: stemMeta.meaning,
     ganji: `${stem}${branch}`,
   };
 }

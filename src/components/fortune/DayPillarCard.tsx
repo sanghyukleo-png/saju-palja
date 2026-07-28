@@ -40,7 +40,7 @@ export function DayPillarCard({
           {dayPillar.ganji}
         </div>
         <p style={{ margin: 0 }}>
-          일간(日干)은 <strong style={{ color: ELEMENT_COLOR[dayPillar.element] }}>{dayPillar.stem}{dayPillar.elementHanja}</strong>,
+          일간(日干)은 <strong style={{ color: ELEMENT_COLOR[dayPillar.element] }}>{dayPillar.stem}({dayPillar.stemHanja})</strong>,
           음양오행으로는{' '}
           <strong style={{ color: ELEMENT_COLOR[dayPillar.element] }}>
             {dayYinYang}{dayPillar.element}({dayPillar.elementHanja})
@@ -48,6 +48,9 @@ export function DayPillarCard({
           기운이에요.
         </p>
       </div>
+      <p className="muted" style={{ fontSize: 13, margin: '0 0 16px' }}>
+        {dayPillar.stem}({dayPillar.stemHanja}) — {dayPillar.stemMeaning}
+      </p>
       <hr />
       <p className="result">{personality}</p>
     </div>

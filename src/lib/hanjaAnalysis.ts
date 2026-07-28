@@ -1,5 +1,6 @@
 import cnchar from 'cnchar';
 import { getElementRelation as getRelation, type DayPillar, type ElementRelation } from '../data/sajuKnowledge';
+import { getHanjaGloss } from './hanjaMeaning';
 
 type Element = DayPillar['element'];
 
@@ -20,6 +21,7 @@ export interface HanjaCharAnalysis {
   char: string;
   strokes: number;
   element: Element;
+  gloss: string;
 }
 
 export interface NameAnalysis {
@@ -47,7 +49,7 @@ export function analyzeHanjaName(name: string): NameAnalysis | null {
 
   const characters: HanjaCharAnalysis[] = chars.map((char) => {
     const strokes = Number(cnchar.stroke(char)) || 0;
-    return { char, strokes, element: STROKE_ELEMENT[strokes % 10] };
+    return { char, strokes, element: STROKE_ELEMENT[strokes % 10], gloss: getHanjaGloss(char) };
   });
 
   const totalStrokes = characters.reduce((sum, c) => sum + c.strokes, 0);

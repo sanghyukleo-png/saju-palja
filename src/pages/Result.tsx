@@ -43,7 +43,7 @@ export function Result() {
   }
 
   if (loading) {
-    return <div className="loading">{PERSONA.name}이 그대의 사주를 짚어보고 있습니다...</div>;
+    return <div className="loading">{PERSONA.name}가 그대의 사주를 짚어보고 있습니다...</div>;
   }
 
   return (
@@ -69,6 +69,8 @@ export function Result() {
           {fortune.todayPillar && fortune.todayRelationComment && fortune.gains && fortune.losses && fortune.nearTermTrend && (
             <ElementAnalysisCard
               todayGanji={fortune.todayPillar.ganji}
+              todayElement={fortune.todayPillar.element}
+              dayElement={fortune.dayPillar.element}
               relationComment={fortune.todayRelationComment}
               gains={fortune.gains}
               losses={fortune.losses}
@@ -76,7 +78,11 @@ export function Result() {
             />
           )}
           {fortune.nameAnalysis && (
-            <NameElementCard nameAnalysis={fortune.nameAnalysis} relationComment={fortune.nameRelationComment} />
+            <NameElementCard
+              nameAnalysis={fortune.nameAnalysis}
+              dayElement={fortune.dayPillar.element}
+              relationComment={fortune.nameRelationComment}
+            />
           )}
         </>
       )}

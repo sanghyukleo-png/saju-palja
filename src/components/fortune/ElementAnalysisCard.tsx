@@ -1,8 +1,12 @@
 import type { NearTermTrendPoint } from '../../data/dummyFortune';
+import type { DayPillar } from '../../data/sajuKnowledge';
+import { ElementCycleDiagram } from './ElementCycleDiagram';
 import styles from './ElementAnalysisCard.module.css';
 
 interface ElementAnalysisCardProps {
   todayGanji: string;
+  todayElement: DayPillar['element'];
+  dayElement: DayPillar['element'];
   relationComment: string;
   gains: string;
   losses: string;
@@ -15,12 +19,23 @@ const TREND_STYLE: Record<NearTermTrendPoint['trend'], string> = {
   주의: styles.trendDown,
 };
 
-export function ElementAnalysisCard({ todayGanji, relationComment, gains, losses, trend }: ElementAnalysisCardProps) {
+export function ElementAnalysisCard({
+  todayGanji,
+  todayElement,
+  dayElement,
+  relationComment,
+  gains,
+  losses,
+  trend,
+}: ElementAnalysisCardProps) {
   return (
     <div className="card">
       <div className="section" style={{ marginTop: 0 }}>🔯 음양오행 기초 분석</div>
       <p className="muted" style={{ margin: '0 0 8px' }}>오늘의 일진: {todayGanji}</p>
-      <p className="result">{relationComment}</p>
+
+      <ElementCycleDiagram elementA={todayElement} elementB={dayElement} labelA="오늘의 기운" labelB="일간" />
+
+      <p className="result" style={{ marginTop: 12 }}>{relationComment}</p>
 
       <div className={styles.gainLossRow}>
         <div className={styles.gainLossBox}>

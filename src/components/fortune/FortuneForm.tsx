@@ -35,11 +35,10 @@ export function FortuneForm() {
   const [birthMinute, setBirthMinute] = useState('');
 
   function handleNameChange(e: ChangeEvent<HTMLInputElement>) {
-    if (isNameComposing) {
-      setName(e.target.value);
-    } else {
-      setName(sanitizeHangulInput(e.target.value));
-    }
+    // 조합 중에는 state를 건드리지 않아요. 모바일에서 조합 중 리렌더가 일어나면
+    // 키보드의 한글 조합(초성·중성·종성)이 끊기는 기기가 있어서, 조합이 끝난 뒤에만 반영해요.
+    if (isNameComposing) return;
+    setName(sanitizeHangulInput(e.target.value));
   }
 
   function handleNameCompositionEnd(e: CompositionEvent<HTMLInputElement>) {
@@ -48,11 +47,8 @@ export function FortuneForm() {
   }
 
   function handleHanjaChange(e: ChangeEvent<HTMLInputElement>) {
-    if (isHanjaComposing) {
-      setHanjaName(e.target.value);
-    } else {
-      setHanjaName(sanitizeHanjaInput(e.target.value));
-    }
+    if (isHanjaComposing) return;
+    setHanjaName(sanitizeHanjaInput(e.target.value));
   }
 
   function handleHanjaCompositionEnd(e: CompositionEvent<HTMLInputElement>) {
