@@ -1,4 +1,4 @@
-import { useState, type ChangeEvent, type CompositionEvent, type FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Input } from '../ui/Input';
 import { Select } from '../ui/Select';
@@ -17,10 +17,7 @@ export function FortuneForm() {
   const navigate = useNavigate();
 
   const [name, setName] = useState('');
-  const [isNameComposing, setIsNameComposing] = useState(false);
-
   const [hanjaName, setHanjaName] = useState('');
-  const [isHanjaComposing, setIsHanjaComposing] = useState(false);
 
   const [calendarType, setCalendarType] = useState<FortuneInput['calendarType']>('solar');
   const [isLeapMonth, setIsLeapMonth] = useState(false);
@@ -33,28 +30,6 @@ export function FortuneForm() {
   const [ampm, setAmpm] = useState<'am' | 'pm'>('am');
   const [birthHour, setBirthHour] = useState('');
   const [birthMinute, setBirthMinute] = useState('');
-
-  function handleNameChange(e: ChangeEvent<HTMLInputElement>) {
-    // 조합 중에는 state를 건드리지 않아요. 모바일에서 조합 중 리렌더가 일어나면
-    // 키보드의 한글 조합(초성·중성·종성)이 끊기는 기기가 있어서, 조합이 끝난 뒤에만 반영해요.
-    if (isNameComposing) return;
-    setName(sanitizeHangulInput(e.target.value));
-  }
-
-  function handleNameCompositionEnd(e: CompositionEvent<HTMLInputElement>) {
-    setIsNameComposing(false);
-    setName(sanitizeHangulInput(e.currentTarget.value));
-  }
-
-  function handleHanjaChange(e: ChangeEvent<HTMLInputElement>) {
-    if (isHanjaComposing) return;
-    setHanjaName(sanitizeHanjaInput(e.target.value));
-  }
-
-  function handleHanjaCompositionEnd(e: CompositionEvent<HTMLInputElement>) {
-    setIsHanjaComposing(false);
-    setHanjaName(sanitizeHanjaInput(e.currentTarget.value));
-  }
 
   function buildBirthDate(): string {
     if (!birthYear || !birthMonth || !birthDay) return '';
@@ -71,13 +46,13 @@ export function FortuneForm() {
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
     const input: FortuneInput = {
-      name,
+      name: sanitizeHangulInput(name),
       birthDate: buildBirthDate(),
       calendarType,
       isLeapMonth,
       gender,
       birthTime: buildBirthTime(),
-      hanjaName,
+      hanjaName: sanitizeHanjaInput(hanjaName),
     };
     navigate('/result', { state: input });
   }
@@ -90,9 +65,8 @@ export function FortuneForm() {
         placeholder="예: 홍길동"
         required
         value={name}
-        onChange={handleNameChange}
-        onCompositionStart={() => setIsNameComposing(true)}
-        onCompositionEnd={handleNameCompositionEnd}
+        onChange={(e) => setName(e.target.value)}
+        onBlur={() => setName((v) => sanitizeHangulInput(v))}
         style={{ marginBottom: 16 }}
       />
 
@@ -229,9 +203,8 @@ export function FortuneForm() {
         id="hanjaName"
         placeholder="예: 金敏秀"
         value={hanjaName}
-        onChange={handleHanjaChange}
-        onCompositionStart={() => setIsHanjaComposing(true)}
-        onCompositionEnd={handleHanjaCompositionEnd}
+        onChange={(e) => setHanjaName(e.target.value)}
+        onBlur={() => setHanjaName((v) => sanitizeHanjaInput(v))}
         style={{ marginBottom: 4 }}
       />
       <p className={styles.hint}>한자만 입력할 수 있어요. 입력하시면 이름의 오행까지 함께 풀이해드려요.</p>
