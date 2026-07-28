@@ -46,3 +46,29 @@
   color: var(--text-light);
   margin: -10px 0 16px;
 }
+
+.fieldRow {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.fieldBox {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.fieldBox input {
+  text-align: center;
+  padding: 16px 8px;
+}
+
+.fieldUnit {
+  flex-shrink: 0;
+  font-size: 14px;
+  color: var(--text-light);
+}
+

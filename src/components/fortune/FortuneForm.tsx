@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useState, type ChangeEvent, type CompositionEvent, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Input } from '../ui/Input';
 import { Select } from '../ui/Select';
@@ -15,19 +15,75 @@ function sanitizeHangulInput(value: string): string {
 
 export function FortuneForm() {
   const navigate = useNavigate();
-  const [form, setForm] = useState<FortuneInput>({
-    name: '',
-    birthDate: '',
-    calendarType: 'solar',
-    isLeapMonth: false,
-    gender: 'female',
-    birthTime: '',
-    hanjaName: '',
-  });
+
+  const [name, setName] = useState('');
+  const [isNameComposing, setIsNameComposing] = useState(false);
+
+  const [hanjaName, setHanjaName] = useState('');
+  const [isHanjaComposing, setIsHanjaComposing] = useState(false);
+
+  const [calendarType, setCalendarType] = useState<FortuneInput['calendarType']>('solar');
+  const [isLeapMonth, setIsLeapMonth] = useState(false);
+  const [birthYear, setBirthYear] = useState('');
+  const [birthMonth, setBirthMonth] = useState('');
+  const [birthDay, setBirthDay] = useState('');
+
+  const [gender, setGender] = useState<FortuneInput['gender']>('female');
+
+  const [ampm, setAmpm] = useState<'am' | 'pm'>('am');
+  const [birthHour, setBirthHour] = useState('');
+  const [birthMinute, setBirthMinute] = useState('');
+
+  function handleNameChange(e: ChangeEvent<HTMLInputElement>) {
+    if (isNameComposing) {
+      setName(e.target.value);
+    } else {
+      setName(sanitizeHangulInput(e.target.value));
+    }
+  }
+
+  function handleNameCompositionEnd(e: CompositionEvent<HTMLInputElement>) {
+    setIsNameComposing(false);
+    setName(sanitizeHangulInput(e.currentTarget.value));
+  }
+
+  function handleHanjaChange(e: ChangeEvent<HTMLInputElement>) {
+    if (isHanjaComposing) {
+      setHanjaName(e.target.value);
+    } else {
+      setHanjaName(sanitizeHanjaInput(e.target.value));
+    }
+  }
+
+  function handleHanjaCompositionEnd(e: CompositionEvent<HTMLInputElement>) {
+    setIsHanjaComposing(false);
+    setHanjaName(sanitizeHanjaInput(e.currentTarget.value));
+  }
+
+  function buildBirthDate(): string {
+    if (!birthYear || !birthMonth || !birthDay) return '';
+    return `${birthYear.padStart(4, '0')}-${birthMonth.padStart(2, '0')}-${birthDay.padStart(2, '0')}`;
+  }
+
+  function buildBirthTime(): string {
+    if (!birthHour || !birthMinute) return '';
+    let hour24 = Number(birthHour) % 12;
+    if (ampm === 'pm') hour24 += 12;
+    return `${String(hour24).padStart(2, '0')}:${birthMinute.padStart(2, '0')}`;
+  }
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
-    navigate('/result', { state: form });
+    const input: FortuneInput = {
+      name,
+      birthDate: buildBirthDate(),
+      calendarType,
+      isLeapMonth,
+      gender,
+      birthTime: buildBirthTime(),
+      hanjaName,
+    };
+    navigate('/result', { state: input });
   }
 
   return (
@@ -37,8 +93,10 @@ export function FortuneForm() {
         id="name"
         placeholder="예: 홍길동"
         required
-        value={form.name}
-        onChange={(e) => setForm({ ...form, name: sanitizeHangulInput(e.target.value) })}
+        value={name}
+        onChange={handleNameChange}
+        onCompositionStart={() => setIsNameComposing(true)}
+        onCompositionEnd={handleNameCompositionEnd}
         style={{ marginBottom: 16 }}
       />
 
@@ -46,37 +104,69 @@ export function FortuneForm() {
       <div className={styles.segment}>
         <button
           type="button"
-          className={`${styles.segmentButton} ${form.calendarType === 'solar' ? styles.segmentActive : ''}`}
-          onClick={() => setForm({ ...form, calendarType: 'solar', isLeapMonth: false })}
+          className={`${styles.segmentButton} ${calendarType === 'solar' ? styles.segmentActive : ''}`}
+          onClick={() => {
+            setCalendarType('solar');
+            setIsLeapMonth(false);
+          }}
         >
           양력
         </button>
         <button
           type="button"
-          className={`${styles.segmentButton} ${form.calendarType === 'lunar' ? styles.segmentActive : ''}`}
-          onClick={() => setForm({ ...form, calendarType: 'lunar' })}
+          className={`${styles.segmentButton} ${calendarType === 'lunar' ? styles.segmentActive : ''}`}
+          onClick={() => setCalendarType('lunar')}
         >
           음력
         </button>
       </div>
 
-      <Input
-        label="생년월일"
-        id="birthDate"
-        type="date"
-        required
-        value={form.birthDate}
-        onChange={(e) => setForm({ ...form, birthDate: e.target.value })}
-        style={{ marginBottom: form.calendarType === 'lunar' ? 8 : 16 }}
-      />
-
-      {form.calendarType === 'lunar' && (
-        <label className={styles.leapRow}>
+      <label>생년월일</label>
+      <div className={styles.fieldRow}>
+        <div className={styles.fieldBox}>
           <input
-            type="checkbox"
-            checked={form.isLeapMonth}
-            onChange={(e) => setForm({ ...form, isLeapMonth: e.target.checked })}
+            type="number"
+            inputMode="numeric"
+            placeholder="1990"
+            min={1900}
+            max={2035}
+            required
+            value={birthYear}
+            onChange={(e) => setBirthYear(e.target.value)}
           />
+          <span className={styles.fieldUnit}>년</span>
+        </div>
+        <div className={styles.fieldBox}>
+          <input
+            type="number"
+            inputMode="numeric"
+            placeholder="1"
+            min={1}
+            max={12}
+            required
+            value={birthMonth}
+            onChange={(e) => setBirthMonth(e.target.value)}
+          />
+          <span className={styles.fieldUnit}>월</span>
+        </div>
+        <div className={styles.fieldBox}>
+          <input
+            type="number"
+            inputMode="numeric"
+            placeholder="1"
+            min={1}
+            max={31}
+            required
+            value={birthDay}
+            onChange={(e) => setBirthDay(e.target.value)}
+          />
+          <span className={styles.fieldUnit}>일</span>
+        </div>
+      </div>
+
+      {calendarType === 'lunar' && (
+        <label className={styles.leapRow}>
+          <input type="checkbox" checked={isLeapMonth} onChange={(e) => setIsLeapMonth(e.target.checked)} />
           윤달이에요
         </label>
       )}
@@ -85,29 +175,67 @@ export function FortuneForm() {
         <Select
           label="성별"
           id="gender"
-          value={form.gender}
-          onChange={(e) => setForm({ ...form, gender: e.target.value as FortuneInput['gender'] })}
+          value={gender}
+          onChange={(e) => setGender(e.target.value as FortuneInput['gender'])}
           options={[
             { value: 'female', label: '여성' },
             { value: 'male', label: '남성' },
           ]}
         />
       </div>
-      <Input
-        label="태어난 시간"
-        id="birthTime"
-        type="time"
-        value={form.birthTime}
-        onChange={(e) => setForm({ ...form, birthTime: e.target.value })}
-        style={{ marginBottom: 16 }}
-      />
+
+      <label>태어난 시간 (선택)</label>
+      <div className={styles.segment}>
+        <button
+          type="button"
+          className={`${styles.segmentButton} ${ampm === 'am' ? styles.segmentActive : ''}`}
+          onClick={() => setAmpm('am')}
+        >
+          오전
+        </button>
+        <button
+          type="button"
+          className={`${styles.segmentButton} ${ampm === 'pm' ? styles.segmentActive : ''}`}
+          onClick={() => setAmpm('pm')}
+        >
+          오후
+        </button>
+      </div>
+      <div className={styles.fieldRow}>
+        <div className={styles.fieldBox}>
+          <input
+            type="number"
+            inputMode="numeric"
+            placeholder="12"
+            min={1}
+            max={12}
+            value={birthHour}
+            onChange={(e) => setBirthHour(e.target.value)}
+          />
+          <span className={styles.fieldUnit}>시</span>
+        </div>
+        <div className={styles.fieldBox}>
+          <input
+            type="number"
+            inputMode="numeric"
+            placeholder="0"
+            min={0}
+            max={59}
+            value={birthMinute}
+            onChange={(e) => setBirthMinute(e.target.value)}
+          />
+          <span className={styles.fieldUnit}>분</span>
+        </div>
+      </div>
 
       <Input
         label="한자 이름 (선택)"
         id="hanjaName"
         placeholder="예: 金敏秀"
-        value={form.hanjaName}
-        onChange={(e) => setForm({ ...form, hanjaName: sanitizeHanjaInput(e.target.value) })}
+        value={hanjaName}
+        onChange={handleHanjaChange}
+        onCompositionStart={() => setIsHanjaComposing(true)}
+        onCompositionEnd={handleHanjaCompositionEnd}
         style={{ marginBottom: 4 }}
       />
       <p className={styles.hint}>한자만 입력할 수 있어요. 입력하시면 이름의 오행까지 함께 풀이해드려요.</p>
