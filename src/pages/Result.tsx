@@ -5,6 +5,7 @@ import { FortuneGrid } from '../components/fortune/FortuneGrid';
 import { LuckyBox } from '../components/fortune/LuckyBox';
 import { AdviceCard } from '../components/fortune/AdviceCard';
 import { DayPillarCard } from '../components/fortune/DayPillarCard';
+import { NameElementCard } from '../components/fortune/NameElementCard';
 import { CautionCard } from '../components/fortune/CautionCard';
 import { ClosingActions } from '../components/fortune/ClosingActions';
 import { PersonaIntro } from '../components/fortune/PersonaIntro';
@@ -62,7 +63,12 @@ export function Result() {
       )}
 
       {activeTab === 'saju' && fortune.dayPillar && (
-        <DayPillarCard dayPillar={fortune.dayPillar} personality={fortune.personality} />
+        <>
+          <DayPillarCard dayPillar={fortune.dayPillar} personality={fortune.personality} />
+          {fortune.nameAnalysis && (
+            <NameElementCard nameAnalysis={fortune.nameAnalysis} relationComment={fortune.nameRelationComment} />
+          )}
+        </>
       )}
 
       {activeTab === 'caution' && <CautionCard caution={fortune.caution} />}

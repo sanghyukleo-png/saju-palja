@@ -1,0 +1,48 @@
+.segment {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.segmentButton {
+  width: auto;
+  height: 44px;
+  flex: 1;
+  background: var(--bg-card);
+  color: var(--text-sub);
+  box-shadow: none;
+  border: 1px solid var(--border);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.segmentButton:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.segmentActive {
+  background: var(--gradient-main);
+  color: var(--text-main);
+  border-color: transparent;
+}
+
+.leapRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: -8px 0 16px;
+  font-size: 14px;
+  color: var(--text-sub);
+}
+
+.leapRow input {
+  width: auto;
+  height: auto;
+}
+
+.hint {
+  font-size: 12px;
+  color: var(--text-light);
+  margin: -10px 0 16px;
+}

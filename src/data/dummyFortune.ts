@@ -1,9 +1,14 @@
 import { ELEMENT_CAUTION, ELEMENT_FLAVOR, ELEMENT_PERSONALITY, getDayPillar, type DayPillar } from './sajuKnowledge';
+import { lunarToSolar, formatSolarDate } from '../lib/lunarCalendar';
+import { analyzeHanjaName, getElementRelation, RELATION_COMMENT, type NameAnalysis } from '../lib/hanjaAnalysis';
 
 export interface FortuneInput {
   birthDate: string;
+  calendarType: 'solar' | 'lunar';
+  isLeapMonth: boolean;
   gender: 'male' | 'female';
   birthTime: string;
+  hanjaName: string;
 }
 
 export interface FortuneCategoryResult {
@@ -23,6 +28,8 @@ export interface FortuneResult {
   caution: string;
   personality: string;
   dayPillar: DayPillar | null;
+  nameAnalysis: NameAnalysis | null;
+  nameRelationComment: string | null;
 }
 
 const SUMMARIES = [
@@ -69,8 +76,19 @@ function pick<T>(list: T[], seed: number, salt: number): T {
   return list[(seed + salt) % list.length];
 }
 
+function resolveSolarBirthDate(input: FortuneInput): string | null {
+  if (input.calendarType === 'solar') return input.birthDate;
+
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(input.birthDate);
+  if (!match) return null;
+  const [, y, m, d] = match;
+
+  const solar = lunarToSolar(Number(y), Number(m), Number(d), input.isLeapMonth);
+  return solar ? formatSolarDate(solar) : null;
+}
+
 export function generateDummyFortune(input: FortuneInput): FortuneResult {
-  const seed = hashSeed(`${input.birthDate}-${input.gender}-${input.birthTime}`);
+  const seed = hashSeed(`${input.birthDate}-${input.calendarType}-${input.gender}-${input.birthTime}`);
 
   const overallScore = 60 + (seed % 36);
   const categories = CATEGORY_META.map((meta, index) => ({
@@ -78,12 +96,19 @@ export function generateDummyFortune(input: FortuneInput): FortuneResult {
     score: 55 + ((seed + index * 17) % 41),
   }));
 
-  const dayPillar = getDayPillar(input.birthDate);
+  const solarBirthDate = resolveSolarBirthDate(input);
+  const dayPillar = solarBirthDate ? getDayPillar(solarBirthDate) : null;
   const scoreBand = overallScore >= 80 ? 'high' : overallScore >= 68 ? 'mid' : 'low';
   const intro = dayPillar ? SCORE_BAND_INTRO[scoreBand](dayPillar.ganji) : '';
   const summary = dayPillar
     ? `${intro} ${pick(SUMMARIES, seed, 0)} ${ELEMENT_FLAVOR[dayPillar.element]}`
     : pick(SUMMARIES, seed, 0);
+
+  const nameAnalysis = analyzeHanjaName(input.hanjaName);
+  const nameRelationComment =
+    dayPillar && nameAnalysis
+      ? RELATION_COMMENT[getElementRelation(dayPillar.element, nameAnalysis.element)](dayPillar.element, nameAnalysis.element)
+      : null;
 
   return {
     overallScore,
@@ -95,6 +120,8 @@ export function generateDummyFortune(input: FortuneInput): FortuneResult {
     caution: dayPillar ? ELEMENT_CAUTION[dayPillar.element] : FALLBACK_CAUTION,
     personality: dayPillar ? ELEMENT_PERSONALITY[dayPillar.element] : FALLBACK_PERSONALITY,
     dayPillar,
+    nameAnalysis,
+    nameRelationComment,
   };
 }
 
