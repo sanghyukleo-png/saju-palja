@@ -8,11 +8,11 @@ const ELEMENT_COLOR: Record<DayPillar['element'], string> = {
   수: '#38bdf8',
 };
 
-export function DayPillarCard({ dayPillar }: { dayPillar: DayPillar }) {
+export function DayPillarCard({ dayPillar, personality }: { dayPillar: DayPillar; personality: string }) {
   return (
     <div className="card">
       <div className="section" style={{ marginTop: 0 }}>🌙 나의 일주(日柱)</div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16 }}>
         <div
           style={{
             width: 64,
@@ -36,6 +36,8 @@ export function DayPillarCard({ dayPillar }: { dayPillar: DayPillar }) {
           오행으로는 <strong style={{ color: ELEMENT_COLOR[dayPillar.element] }}>{dayPillar.element}({dayPillar.elementHanja})</strong> 기운이에요.
         </p>
       </div>
+      <hr />
+      <p className="result">{personality}</p>
     </div>
   );
 }

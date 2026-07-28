@@ -1,0 +1,33 @@
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.tab {
+  width: auto;
+  height: auto;
+  flex: 1;
+  background: none;
+  box-shadow: none;
+  border: none;
+  border-radius: 0;
+  padding: 12px 4px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-light);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+
+.tab:hover {
+  transform: none;
+  box-shadow: none;
+  color: var(--text-sub);
+}
+
+.tabActive {
+  color: var(--gold);
+  border-bottom-color: var(--gold);
+}

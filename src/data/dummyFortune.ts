@@ -1,4 +1,4 @@
-import { ELEMENT_FLAVOR, getDayPillar, type DayPillar } from './sajuKnowledge';
+import { ELEMENT_CAUTION, ELEMENT_FLAVOR, ELEMENT_PERSONALITY, getDayPillar, type DayPillar } from './sajuKnowledge';
 
 export interface FortuneInput {
   birthDate: string;
@@ -20,6 +20,8 @@ export interface FortuneResult {
   luckyColor: string;
   luckyNumber: number;
   advice: string;
+  caution: string;
+  personality: string;
   dayPillar: DayPillar | null;
 }
 
@@ -38,6 +40,9 @@ const ADVICE = [
 ];
 
 const COLORS = ['보라', '남색', '금색', '초록', '하늘색'];
+
+const FALLBACK_CAUTION = '오늘은 서두르면 그르치기 쉬운 날이니, 중요한 결정은 한 번 더 살피고 내리시게.';
+const FALLBACK_PERSONALITY = '그대의 사주는 아직 다 헤아리지 못했으나, 꾸준히 정진하는 기운만은 뚜렷하구려.';
 
 const CATEGORY_META: { key: FortuneCategoryResult['key']; label: string; emoji: string }[] = [
   { key: 'wealth', label: '재물운', emoji: '💰' },
@@ -79,6 +84,8 @@ export function generateDummyFortune(input: FortuneInput): FortuneResult {
     luckyColor: pick(COLORS, seed, 1),
     luckyNumber: 1 + ((seed + 3) % 45),
     advice: pick(ADVICE, seed, 2),
+    caution: dayPillar ? ELEMENT_CAUTION[dayPillar.element] : FALLBACK_CAUTION,
+    personality: dayPillar ? ELEMENT_PERSONALITY[dayPillar.element] : FALLBACK_PERSONALITY,
     dayPillar,
   };
 }
