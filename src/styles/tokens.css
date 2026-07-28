@@ -1,0 +1,48 @@
+/* ==========================================================
+   AI SAJU / SHINJEOM DESIGN SYSTEM v1.0
+   Premium Korean Fortune Theme
+   ========================================================== */
+
+:root {
+  /* Background */
+  --bg-primary: #0b1020;
+  --bg-secondary: #141b34;
+  --bg-card: #1c2443;
+  --bg-hover: #252e54;
+
+  /* Brand Color */
+  --primary: #6a4cff;
+  --primary-light: #8b7bff;
+  --primary-dark: #4a2bd8;
+
+  --secondary: #00d4ff;
+  --secondary-light: #7ee7ff;
+
+  --gold: #f6c453;
+  --gold-dark: #d99c17;
+
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+
+  /* Text */
+  --text-main: #ffffff;
+  --text-sub: #cdd6e5;
+  --text-light: #95a1b9;
+
+  /* Border */
+  --border: rgba(255, 255, 255, 0.08);
+
+  /* Radius */
+  --radius-small: 12px;
+  --radius: 18px;
+  --radius-large: 24px;
+
+  /* Shadow */
+  --shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+
+  /* Gradient */
+  --gradient-main: linear-gradient(135deg, #6a4cff, #7e5bff, #4f46e5, #00d4ff);
+  --gradient-gold: linear-gradient(135deg, #ffe188, #f6c453, #d99c17);
+  --gradient-bg: radial-gradient(circle at top, #2b2065 0%, #1b2345 45%, #0b1020 100%);
+}

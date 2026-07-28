@@ -1,0 +1,41 @@
+import type { DayPillar } from '../../data/sajuKnowledge';
+
+const ELEMENT_COLOR: Record<DayPillar['element'], string> = {
+  목: '#4ade80',
+  화: '#f87171',
+  토: '#d99c17',
+  금: '#e5e7eb',
+  수: '#38bdf8',
+};
+
+export function DayPillarCard({ dayPillar }: { dayPillar: DayPillar }) {
+  return (
+    <div className="card">
+      <div className="section" style={{ marginTop: 0 }}>🌙 나의 일주(日柱)</div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        <div
+          style={{
+            width: 64,
+            height: 64,
+            borderRadius: 16,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: 24,
+            fontWeight: 800,
+            flexShrink: 0,
+            background: 'rgba(255,255,255,0.05)',
+            color: ELEMENT_COLOR[dayPillar.element],
+            border: '1px solid var(--border)',
+          }}
+        >
+          {dayPillar.ganji}
+        </div>
+        <p style={{ margin: 0 }}>
+          일간(日干)은 <strong style={{ color: ELEMENT_COLOR[dayPillar.element] }}>{dayPillar.stem}{dayPillar.elementHanja}</strong>,
+          오행으로는 <strong style={{ color: ELEMENT_COLOR[dayPillar.element] }}>{dayPillar.element}({dayPillar.elementHanja})</strong> 기운이에요.
+        </p>
+      </div>
+    </div>
+  );
+}
