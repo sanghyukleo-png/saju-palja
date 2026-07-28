@@ -44,6 +44,25 @@ VITE_SUPABASE_ANON_KEY=여기에_anon_public_키_붙여넣기
 
 Vercel/Netlify 등에 배포할 때는 `.env.local`이 올라가지 않으니, 배포 플랫폼의 Environment Variables 설정에 `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`를 동일하게 등록해야 해요.
 
+## 7. Google Search Console (사이트맵 제출)
+
+1) https://search.google.com/search-console 접속 → 속성 추가
+2) "URL 접두어" 방식으로 `https://saju-palja-livid.vercel.app` 입력
+3) 소유권 확인 — "HTML 태그" 방식이 제일 쉬워요: 발급되는 `<meta name="google-site-verification" ...>` 태그를 복사해서 `index.html`의 `<head>` 안에 붙여넣고 배포한 뒤 "확인" 클릭
+4) 확인되면 왼쪽 메뉴 **Sitemaps** → `sitemap.xml` 입력 후 제출 (이 프로젝트에 이미 `public/sitemap.xml`이 있어서 `https://saju-palja-livid.vercel.app/sitemap.xml`로 바로 접근돼요)
+5) 색인 생성은 보통 며칠 걸려요, 인내심을 가지고 기다려주세요
+
+## 8. Google AdSense 신청
+
+1) https://www.google.com/adsense 접속 → 가입 (구글 계정 필요)
+2) 사이트 URL로 `https://saju-palja-livid.vercel.app` 등록
+3) 발급되는 확인 코드(`<script>` 태그)를 `index.html`의 `<head>` 안에 붙여넣고 배포 → "확인" 클릭
+4) 승인되면 **ads.txt** 파일이 필요해요 — AdSense가 알려주는 내용(`google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0` 형식)을 `public/ads.txt` 파일로 만들어서 커밋·push 해주세요 (발급받은 pub-ID를 저한테 알려주시면 제가 파일을 만들어드릴게요)
+5) 심사는 보통 며칠~몇 주 걸려요. 심사 중엔 광고가 안 뜨는 게 정상이에요
+6) **참고**: 콘텐츠 양이 적거나(현재는 데모 위주), `.vercel.app` 같은 공유 서브도메인을 쓰는 경우 심사에서 반려될 수 있어요. 승인 확률을 높이려면:
+   - 실제 콘텐츠(FAQ, 이용약관 등)를 충분히 채워둘 것 (이미 해뒀어요)
+   - 가능하면 커스텀 도메인(예: `sajupalja.com`)을 구매해서 연결하는 걸 추천해요
+
 ## 지금 상태 (백엔드 연결 전)
 
 `.env.local`을 아직 안 만들었다면 사이트는 "데모 모드"로 동작해요:

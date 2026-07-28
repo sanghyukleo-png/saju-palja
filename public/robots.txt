@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /mypage
+Disallow: /result
+
+Sitemap: https://saju-palja-livid.vercel.app/sitemap.xml
