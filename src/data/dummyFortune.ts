@@ -249,6 +249,36 @@ export function generateDummyFortune(input: FortuneInput): FortuneResult {
   };
 }
 
+/** 결과 페이지를 링크로 공유할 수 있도록 입력값을 URL 쿼리로 변환해요. */
+export function encodeFortuneInput(input: FortuneInput): URLSearchParams {
+  const params = new URLSearchParams();
+  params.set('name', input.name);
+  params.set('birthDate', input.birthDate);
+  params.set('calendarType', input.calendarType);
+  if (input.isLeapMonth) params.set('isLeapMonth', '1');
+  params.set('gender', input.gender);
+  if (input.birthTime) params.set('birthTime', input.birthTime);
+  if (input.hanjaName) params.set('hanjaName', input.hanjaName);
+  return params;
+}
+
+/** URL 쿼리로 전달된 값을 다시 FortuneInput으로 복원해요. 필수값이 없으면 null이에요. */
+export function decodeFortuneInput(params: URLSearchParams): FortuneInput | null {
+  const birthDate = params.get('birthDate');
+  const name = params.get('name');
+  if (!birthDate || !name) return null;
+
+  return {
+    name,
+    birthDate,
+    calendarType: params.get('calendarType') === 'lunar' ? 'lunar' : 'solar',
+    isLeapMonth: params.get('isLeapMonth') === '1',
+    gender: params.get('gender') === 'male' ? 'male' : 'female',
+    birthTime: params.get('birthTime') ?? '',
+    hanjaName: params.get('hanjaName') ?? '',
+  };
+}
+
 export interface FortuneHistoryEntry {
   id: string;
   date: string;

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Input } from '../ui/Input';
 import { Select } from '../ui/Select';
 import { Button } from '../ui/Button';
-import type { FortuneInput } from '../../data/dummyFortune';
+import { encodeFortuneInput, type FortuneInput } from '../../data/dummyFortune';
 import { sanitizeHanjaInput } from '../../lib/hanjaAnalysis';
 import styles from './FortuneForm.module.css';
 
@@ -54,7 +54,7 @@ export function FortuneForm() {
       birthTime: buildBirthTime(),
       hanjaName: sanitizeHanjaInput(hanjaName),
     };
-    navigate('/result', { state: input });
+    navigate(`/result?${encodeFortuneInput(input).toString()}`);
   }
 
   return (

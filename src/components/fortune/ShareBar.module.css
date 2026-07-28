@@ -1,0 +1,33 @@
+.row {
+  display: flex;
+  gap: 8px;
+}
+
+.shareButton {
+  width: auto;
+  height: 48px;
+  flex: 1;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-sub);
+  box-shadow: none;
+  border: 1px solid var(--border);
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.shareButton:hover {
+  transform: none;
+  box-shadow: none;
+  background: var(--bg-hover);
+}
+
+.feedback {
+  text-align: center;
+  font-size: 13px;
+  color: var(--gold);
+  margin: 8px 0 0;
+}

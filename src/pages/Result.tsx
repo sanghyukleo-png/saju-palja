@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ScoreCard } from '../components/fortune/ScoreCard';
 import { FortuneGrid } from '../components/fortune/FortuneGrid';
 import { LuckyBox } from '../components/fortune/LuckyBox';
@@ -11,7 +11,8 @@ import { CautionCard } from '../components/fortune/CautionCard';
 import { ClosingActions } from '../components/fortune/ClosingActions';
 import { PersonaIntro } from '../components/fortune/PersonaIntro';
 import { Tabs, type TabItem } from '../components/ui/Tabs';
-import { generateDummyFortune, type FortuneInput } from '../data/dummyFortune';
+import { decodeFortuneInput, generateDummyFortune } from '../data/dummyFortune';
+import { ShareBar } from '../components/fortune/ShareBar';
 import { PERSONA } from '../data/sajuKnowledge';
 
 const TABS: TabItem[] = [
@@ -21,9 +22,9 @@ const TABS: TabItem[] = [
 ];
 
 export function Result() {
-  const location = useLocation();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const input = location.state as FortuneInput | null;
+  const input = useMemo(() => decodeFortuneInput(searchParams), [searchParams]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('today');
 
@@ -89,6 +90,7 @@ export function Result() {
 
       {activeTab === 'caution' && <CautionCard caution={fortune.caution} />}
 
+      <ShareBar name={input.name} score={fortune.overallScore} />
       <ClosingActions />
     </section>
   );
