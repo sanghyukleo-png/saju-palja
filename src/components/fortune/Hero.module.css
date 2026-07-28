@@ -1,0 +1,80 @@
+.hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-large);
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, #10182c 0%, #0a0f1d 60%, #05070d 100%);
+  padding: 40px 28px 32px;
+  margin-bottom: 24px;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+
+.moon {
+  position: absolute;
+  top: 22px;
+  right: 24px;
+  width: 46px;
+  height: 46px;
+  opacity: 0.9;
+}
+
+.constellation {
+  position: absolute;
+  top: -30px;
+  left: -30px;
+  width: 140px;
+  height: 140px;
+  opacity: 0.35;
+}
+
+.mountains {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  width: 100%;
+  height: auto;
+  opacity: 0.9;
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+}
+
+.eyebrow {
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  color: var(--gold);
+  margin-bottom: 10px;
+}
+
+.title {
+  font-family: var(--font-heading);
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.4;
+  margin: 0 0 14px;
+  background: var(--gradient-gold);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: var(--text-sub);
+  line-height: 1.7;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .hero {
+    padding: 32px 20px 26px;
+  }
+
+  .title {
+    font-size: 24px;
+  }
+}

@@ -1,13 +1,15 @@
 import { FortuneForm } from '../components/fortune/FortuneForm';
 import { PersonaIntro } from '../components/fortune/PersonaIntro';
+import { Hero } from '../components/fortune/Hero';
 
 export function Home() {
   return (
     <section>
-      <div className="text-center" style={{ marginBottom: 24 }}>
-        <h1>사주팔자 운세보기</h1>
-        <p>생년월일을 알려주시면 오늘의 운세를 봐드립니다</p>
-      </div>
+      <Hero
+        eyebrow="간지(干支)로 정성껏 풀이하는"
+        title={['당신의 사주,', '운명의 흐름을 읽다']}
+        subtitle="사주팔자 속에 담긴 당신의 운명, 지금 그 이야기를 시작합니다"
+      />
       <PersonaIntro />
       <FortuneForm />
     </section>

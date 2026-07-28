@@ -4,34 +4,35 @@
    ========================================================== */
 
 :root {
-  /* Background */
-  --bg-primary: #0b1020;
-  --bg-secondary: #141b34;
-  --bg-card: #1c2443;
-  --bg-hover: #252e54;
+  /* Background — deep night-sky navy */
+  --bg-primary: #070b16;
+  --bg-secondary: #0f1627;
+  --bg-card: #121a2d;
+  --bg-hover: #1b2540;
 
-  /* Brand Color */
-  --primary: #6a4cff;
-  --primary-light: #8b7bff;
-  --primary-dark: #4a2bd8;
+  /* Brand Color — muted indigo (no neon purple/cyan) */
+  --primary: #3b4c8f;
+  --primary-light: #5e72b8;
+  --primary-dark: #232f5e;
 
-  --secondary: #00d4ff;
-  --secondary-light: #7ee7ff;
+  --secondary: #6f9d97;
+  --secondary-light: #a0c4bf;
 
-  --gold: #f6c453;
-  --gold-dark: #d99c17;
+  /* Antique gold accent */
+  --gold: #d9b159;
+  --gold-dark: #b8892e;
 
   --success: #22c55e;
   --warning: #f59e0b;
   --danger: #ef4444;
 
   /* Text */
-  --text-main: #ffffff;
-  --text-sub: #cdd6e5;
-  --text-light: #95a1b9;
+  --text-main: #f3ede0;
+  --text-sub: #cdd3e2;
+  --text-light: #8b93ab;
 
   /* Border */
-  --border: rgba(255, 255, 255, 0.08);
+  --border: rgba(217, 177, 89, 0.14);
 
   /* Radius */
   --radius-small: 12px;
@@ -39,10 +40,13 @@
   --radius-large: 24px;
 
   /* Shadow */
-  --shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+  --shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+
+  /* Typography */
+  --font-heading: 'Noto Serif KR', 'MaruBuri', serif;
 
   /* Gradient */
-  --gradient-main: linear-gradient(135deg, #6a4cff, #7e5bff, #4f46e5, #00d4ff);
-  --gradient-gold: linear-gradient(135deg, #ffe188, #f6c453, #d99c17);
-  --gradient-bg: radial-gradient(circle at top, #2b2065 0%, #1b2345 45%, #0b1020 100%);
+  --gradient-main: linear-gradient(135deg, #232f5e, #3b4c8f, #5e72b8);
+  --gradient-gold: linear-gradient(135deg, #f0d9a0, #d9b159, #b8892e);
+  --gradient-bg: radial-gradient(ellipse at top, #1b2740 0%, #0f1627 45%, #05070d 100%);
 }
