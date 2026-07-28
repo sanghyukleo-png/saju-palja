@@ -1,8 +1,25 @@
-import { ELEMENT_CAUTION, ELEMENT_FLAVOR, ELEMENT_PERSONALITY, getDayPillar, type DayPillar } from './sajuKnowledge';
+import {
+  ELEMENT_CAUTION,
+  ELEMENT_FLAVOR,
+  ELEMENT_PERSONALITY,
+  getDayPillar,
+  getElementRelation,
+  getStemYinYang,
+  shiftDate,
+  todayDateString,
+  type DayPillar,
+  type ElementRelation,
+} from './sajuKnowledge';
 import { lunarToSolar, formatSolarDate } from '../lib/lunarCalendar';
-import { analyzeHanjaName, getElementRelation, RELATION_COMMENT, type NameAnalysis } from '../lib/hanjaAnalysis';
+import {
+  analyzeHanjaName,
+  getElementRelation as getNameRelation,
+  RELATION_COMMENT,
+  type NameAnalysis,
+} from '../lib/hanjaAnalysis';
 
 export interface FortuneInput {
+  name: string;
   birthDate: string;
   calendarType: 'solar' | 'lunar';
   isLeapMonth: boolean;
@@ -18,6 +35,14 @@ export interface FortuneCategoryResult {
   score: number;
 }
 
+export interface NearTermTrendPoint {
+  label: string;
+  dateLabel: string;
+  ganji: string;
+  trend: '상승' | '보합' | '주의';
+  note: string;
+}
+
 export interface FortuneResult {
   overallScore: number;
   summary: string;
@@ -28,8 +53,14 @@ export interface FortuneResult {
   caution: string;
   personality: string;
   dayPillar: DayPillar | null;
+  dayYinYang: '양' | '음' | null;
   nameAnalysis: NameAnalysis | null;
   nameRelationComment: string | null;
+  todayPillar: DayPillar | null;
+  todayRelationComment: string | null;
+  gains: string | null;
+  losses: string | null;
+  nearTermTrend: NearTermTrendPoint[] | null;
 }
 
 const SUMMARIES = [
@@ -40,9 +71,11 @@ const SUMMARIES = [
 ];
 
 const SCORE_BAND_INTRO = {
-  high: (ganji: string) => `${ganji}의 기운을 타고난 오늘, 전반적인 흐름이 유독 맑고 순탄한 하루예요.`,
-  mid: (ganji: string) => `${ganji}의 기운을 타고난 오늘은, 크게 나쁘지도 특별히 들뜨지도 않은 무난하고 안정적인 흐름이에요.`,
-  low: (ganji: string) => `${ganji}의 기운을 타고난 오늘은, 평소보다 조금 신중하게 움직여야 하는 잔잔한 흐름이에요.`,
+  high: (name: string, ganji: string) => `${name}님, ${ganji}의 기운을 타고난 오늘은 전반적인 흐름이 유독 맑고 순탄한 하루예요.`,
+  mid: (name: string, ganji: string) =>
+    `${name}님, ${ganji}의 기운을 타고난 오늘은 크게 나쁘지도 특별히 들뜨지도 않은 무난하고 안정적인 흐름이에요.`,
+  low: (name: string, ganji: string) =>
+    `${name}님, ${ganji}의 기운을 타고난 오늘은 평소보다 조금 신중하게 움직여야 하는 잔잔한 흐름이에요.`,
 };
 
 const ADVICE = [
@@ -63,6 +96,55 @@ const CATEGORY_META: { key: FortuneCategoryResult['key']; label: string; emoji: 
   { key: 'work', label: '직장운', emoji: '💼' },
   { key: 'health', label: '건강운', emoji: '🏥' },
 ];
+
+/** 오늘의 일진(첫 번째)과 일간(두 번째) 관계가 종합운 점수에 주는 보정치 */
+const SCORE_MODIFIER: Record<ElementRelation, number> = {
+  firstGeneratesSecond: 22,
+  secondGeneratesFirst: 2,
+  same: 8,
+  firstOvercomesSecond: -18,
+  secondOvercomesFirst: 10,
+};
+
+const TODAY_RELATION_COMMENT: Record<ElementRelation, (today: string, day: string) => string> = {
+  firstGeneratesSecond: (t, d) =>
+    `오늘의 기운(${t})이 그대의 일간(${d})을 북돋아주는 상생의 날이에요. 귀인의 도움이나 뜻밖의 좋은 소식이 들어올 수 있고, 막혀 있던 일은 자연스럽게 풀려나갈 거예요.`,
+  secondGeneratesFirst: (t, d) =>
+    `그대의 일간(${d})이 오늘의 기운(${t})에 힘을 나눠주는 날이에요. 애쓴 만큼 바로 돌아오진 않아도, 오늘 나눈 마음과 노력은 시간이 지나 좋은 결실로 돌아올 거예요.`,
+  same: (t, d) =>
+    `오늘의 기운과 그대의 일간이 같은 ${d}(五行)으로 만나 본래의 기질이 한층 강해지는 날이에요(${t} · ${d} 비화). 뜻을 밀어붙이기엔 좋지만, 고집이나 과욕은 살짝 내려놓는 게 이로워요.`,
+  firstOvercomesSecond: (t, d) =>
+    `오늘의 기운(${t})이 그대의 일간(${d})을 누르는 상극의 날이에요. 예상 밖의 부담이나 지출이 들어올 수 있으니, 무리한 결정이나 새로운 시작은 하루 미루는 게 낫겠어요.`,
+  secondOvercomesFirst: (t, d) =>
+    `그대의 일간(${d})이 오늘의 기운(${t})을 다스리는 날이에요. 주도권을 쥐고 움직이기 좋은 날이라, 미뤄왔던 결정을 내리거나 원하는 것을 밀어붙이기에 유리해요.`,
+};
+
+const INCOMING_OUTGOING: Record<ElementRelation, { gains: string; losses: string }> = {
+  firstGeneratesSecond: { gains: '귀인의 도움, 뜻밖의 좋은 소식, 새로운 기회', losses: '오래 붙잡고 있던 걱정과 막막함' },
+  secondGeneratesFirst: { gains: '애쓴 만큼의 작은 성과, 좋은 인연의 씨앗', losses: '체력과 에너지, 여윳돈' },
+  same: { gains: '추진력과 결단력, 뜻을 함께할 사람', losses: '우유부단함, 눈치 보던 마음' },
+  firstOvercomesSecond: { gains: '예상 밖의 부담, 갑작스러운 지출이나 요구', losses: '자신감, 마음의 여유' },
+  secondOvercomesFirst: { gains: '주도권, 원하는 결과', losses: '불필요한 눈치와 미련' },
+};
+
+const NEAR_TERM_NOTE: Record<ElementRelation, string> = {
+  firstGeneratesSecond: '주변의 도움을 받아 순조롭게 흘러가는 시기예요.',
+  secondGeneratesFirst: '베푸는 만큼 천천히 결실이 쌓이는 시기예요.',
+  same: '뜻을 밀어붙이기 좋지만 과욕은 주의할 시기예요.',
+  firstOvercomesSecond: '부담과 압박이 늘어 신중해야 할 시기예요.',
+  secondOvercomesFirst: '주도권을 쥐고 유리하게 이끌어갈 시기예요.',
+};
+
+function trendLabel(modifier: number): '상승' | '보합' | '주의' {
+  if (modifier >= 15) return '상승';
+  if (modifier <= -10) return '주의';
+  return '보합';
+}
+
+function formatMonthDay(dateString: string): string {
+  const [, m, d] = dateString.split('-');
+  return `${Number(m)}월 ${Number(d)}일`;
+}
 
 function hashSeed(input: string): number {
   let hash = 0;
@@ -88,26 +170,62 @@ function resolveSolarBirthDate(input: FortuneInput): string | null {
 }
 
 export function generateDummyFortune(input: FortuneInput): FortuneResult {
-  const seed = hashSeed(`${input.birthDate}-${input.calendarType}-${input.gender}-${input.birthTime}`);
-
-  const overallScore = 60 + (seed % 36);
-  const categories = CATEGORY_META.map((meta, index) => ({
-    ...meta,
-    score: 55 + ((seed + index * 17) % 41),
-  }));
+  const seed = hashSeed(`${input.name}-${input.birthDate}-${input.calendarType}-${input.gender}-${input.birthTime}`);
 
   const solarBirthDate = resolveSolarBirthDate(input);
   const dayPillar = solarBirthDate ? getDayPillar(solarBirthDate) : null;
+  const dayYinYang = dayPillar ? getStemYinYang(dayPillar.stem) : null;
+
+  const today = todayDateString();
+  const todayPillar = getDayPillar(today);
+
+  const relation = dayPillar && todayPillar ? getElementRelation(todayPillar.element, dayPillar.element) : null;
+  const scoreModifier = relation ? SCORE_MODIFIER[relation] : 0;
+
+  const baseScore = 45 + (seed % 20);
+  const overallScore = Math.min(99, Math.max(5, baseScore + scoreModifier));
+
+  const categories = CATEGORY_META.map((meta, index) => ({
+    ...meta,
+    score: Math.min(99, Math.max(5, 50 + ((seed + index * 17) % 36) + Math.round(scoreModifier / 2))),
+  }));
+
   const scoreBand = overallScore >= 80 ? 'high' : overallScore >= 68 ? 'mid' : 'low';
-  const intro = dayPillar ? SCORE_BAND_INTRO[scoreBand](dayPillar.ganji) : '';
+  const intro = dayPillar ? SCORE_BAND_INTRO[scoreBand](input.name, dayPillar.ganji) : '';
   const summary = dayPillar
     ? `${intro} ${pick(SUMMARIES, seed, 0)} ${ELEMENT_FLAVOR[dayPillar.element]}`
-    : pick(SUMMARIES, seed, 0);
+    : `${input.name}님, ${pick(SUMMARIES, seed, 0)}`;
+
+  const todayRelationComment =
+    relation && dayPillar && todayPillar ? TODAY_RELATION_COMMENT[relation](todayPillar.element, dayPillar.element) : null;
+  const gains = relation ? INCOMING_OUTGOING[relation].gains : null;
+  const losses = relation ? INCOMING_OUTGOING[relation].losses : null;
+
+  // 천간은 10일 주기로 순환하므로, 10의 배수 간격은 매번 같은 천간(같은 오행)을 가리켜요.
+  // 서로 다른 흐름을 보여주기 위해 10으로 나눈 나머지가 겹치지 않는 간격을 사용해요.
+  const nearTermTrend: NearTermTrendPoint[] | null = dayPillar
+    ? ([
+        [7, '가까운 시일'],
+        [18, '한 달 안'],
+        [32, '한 달 뒤'],
+      ] as const).map(([offset, label]) => {
+        const futureDate = shiftDate(today, offset);
+        const futurePillar = getDayPillar(futureDate);
+        const futureRelation = futurePillar ? getElementRelation(futurePillar.element, dayPillar.element) : 'same';
+        return {
+          label,
+          dateLabel: formatMonthDay(futureDate),
+          ganji: futurePillar?.ganji ?? '',
+          trend: trendLabel(SCORE_MODIFIER[futureRelation]),
+          note: NEAR_TERM_NOTE[futureRelation],
+        };
+      })
+    : null;
 
   const nameAnalysis = analyzeHanjaName(input.hanjaName);
   const nameRelationComment =
     dayPillar && nameAnalysis
-      ? RELATION_COMMENT[getElementRelation(dayPillar.element, nameAnalysis.element)](dayPillar.element, nameAnalysis.element)
+      ? RELATION_COMMENT[getNameRelation(dayPillar.element, nameAnalysis.element)](dayPillar.element, nameAnalysis.element)
       : null;
 
   return {
@@ -120,8 +238,14 @@ export function generateDummyFortune(input: FortuneInput): FortuneResult {
     caution: dayPillar ? ELEMENT_CAUTION[dayPillar.element] : FALLBACK_CAUTION,
     personality: dayPillar ? ELEMENT_PERSONALITY[dayPillar.element] : FALLBACK_PERSONALITY,
     dayPillar,
+    dayYinYang,
     nameAnalysis,
     nameRelationComment,
+    todayPillar,
+    todayRelationComment,
+    gains,
+    losses,
+    nearTermTrend,
   };
 }
 

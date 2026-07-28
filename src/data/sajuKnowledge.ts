@@ -55,6 +55,53 @@ export function getDayPillar(birthDate: string): DayPillar | null {
   };
 }
 
+const YANG_STEMS = new Set(['갑', '병', '무', '경', '임']);
+
+/** 천간의 음양(陰陽)을 판별해요. */
+export function getStemYinYang(stem: string): '양' | '음' {
+  return YANG_STEMS.has(stem) ? '양' : '음';
+}
+
+/** 오늘 날짜(YYYY-MM-DD)를 dateOffsetDays 만큼 이동한 날짜 문자열을 반환해요. */
+export function shiftDate(dateString: string, dateOffsetDays: number): string {
+  const [y, m, d] = dateString.split('-').map(Number);
+  const date = new Date(Date.UTC(y, m - 1, d));
+  date.setUTCDate(date.getUTCDate() + dateOffsetDays);
+  const yyyy = date.getUTCFullYear();
+  const mm = String(date.getUTCMonth() + 1).padStart(2, '0');
+  const dd = String(date.getUTCDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+export function todayDateString(): string {
+  const now = new Date();
+  const yyyy = now.getFullYear();
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const dd = String(now.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+type Element = DayPillar['element'];
+
+export type ElementRelation =
+  | 'same'
+  | 'firstGeneratesSecond'
+  | 'secondGeneratesFirst'
+  | 'firstOvercomesSecond'
+  | 'secondOvercomesFirst';
+
+const GENERATES: Record<Element, Element> = { 목: '화', 화: '토', 토: '금', 금: '수', 수: '목' };
+const OVERCOMES: Record<Element, Element> = { 목: '토', 토: '수', 수: '화', 화: '금', 금: '목' };
+
+/** 두 오행 사이의 상생(生)·상극(剋) 관계를 판별해요. */
+export function getElementRelation(first: Element, second: Element): ElementRelation {
+  if (first === second) return 'same';
+  if (GENERATES[first] === second) return 'firstGeneratesSecond';
+  if (GENERATES[second] === first) return 'secondGeneratesFirst';
+  if (OVERCOMES[first] === second) return 'firstOvercomesSecond';
+  return 'secondOvercomesFirst';
+}
+
 export const ELEMENT_FLAVOR: Record<DayPillar['element'], string> = {
   목: '나무처럼 뻗어나가는 성장의 기운이 유난히 강한 날이에요. 묵혀두었던 계획이 있다면 오늘 첫걸음을 떼기에 좋은 흐름이고, 배움이나 확장을 시도할수록 그 결실이 오래 갈 거예요. 다만 뻗어나가려는 마음이 앞서 주변을 살피지 못하는 순간도 있을 테니, 곁에 있는 사람들에게도 눈길을 나눠주세요.',
   화: '타오르는 불의 기운이 활발해지는 하루예요. 사람들 앞에 나서거나 생각을 적극적으로 표현할수록 좋은 운이 따라오고, 평소 망설이던 제안이나 고백을 꺼내기에도 나쁘지 않은 때예요. 다만 감정이 빠르게 끓어오르는 만큼 식는 것도 빠르니, 중요한 결정은 열기가 조금 가라앉은 뒤에 내리는 편이 좋겠어요.',
@@ -126,6 +173,11 @@ export const FAQ_ITEMS: FaqItem[] = [
     question: '음력으로 입력하면 정확한가요?',
     answer:
       '네, 음력 생년월일도 실제 만세력 변환 라이브러리로 양력으로 정확히 변환한 뒤 계산해요. 윤달에 태어나셨다면 꼭 "윤달이에요" 체크박스를 함께 선택해주세요.',
+  },
+  {
+    question: '오늘의 종합운 점수는 어떻게 정해지나요?',
+    answer:
+      '오늘 날짜의 일진(干支)과 그대의 일간(태어난 날의 오행)이 서로 돕는 관계(상생)인지, 부딪히는 관계(상극)인지, 같은 오행인지를 계산해서 점수에 반영해요. 상생이면 점수가 오르고 상극이면 내려가는 식이라, 같은 날이어도 태어난 날의 오행에 따라 사람마다 다른 점수가 나와요.',
   },
   {
     question: '이 앱의 운세는 정식 사주 상담과 같은가요?',

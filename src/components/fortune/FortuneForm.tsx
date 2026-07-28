@@ -7,9 +7,16 @@ import type { FortuneInput } from '../../data/dummyFortune';
 import { sanitizeHanjaInput } from '../../lib/hanjaAnalysis';
 import styles from './FortuneForm.module.css';
 
+function sanitizeHangulInput(value: string): string {
+  return Array.from(value)
+    .filter((c) => /[가-힣]/.test(c))
+    .join('');
+}
+
 export function FortuneForm() {
   const navigate = useNavigate();
   const [form, setForm] = useState<FortuneInput>({
+    name: '',
     birthDate: '',
     calendarType: 'solar',
     isLeapMonth: false,
@@ -25,6 +32,16 @@ export function FortuneForm() {
 
   return (
     <form onSubmit={handleSubmit} className="card">
+      <Input
+        label="이름"
+        id="name"
+        placeholder="예: 홍길동"
+        required
+        value={form.name}
+        onChange={(e) => setForm({ ...form, name: sanitizeHangulInput(e.target.value) })}
+        style={{ marginBottom: 16 }}
+      />
+
       <label>양력 / 음력</label>
       <div className={styles.segment}>
         <button

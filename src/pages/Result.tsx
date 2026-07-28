@@ -5,6 +5,7 @@ import { FortuneGrid } from '../components/fortune/FortuneGrid';
 import { LuckyBox } from '../components/fortune/LuckyBox';
 import { AdviceCard } from '../components/fortune/AdviceCard';
 import { DayPillarCard } from '../components/fortune/DayPillarCard';
+import { ElementAnalysisCard } from '../components/fortune/ElementAnalysisCard';
 import { NameElementCard } from '../components/fortune/NameElementCard';
 import { CautionCard } from '../components/fortune/CautionCard';
 import { ClosingActions } from '../components/fortune/ClosingActions';
@@ -62,9 +63,18 @@ export function Result() {
         </>
       )}
 
-      {activeTab === 'saju' && fortune.dayPillar && (
+      {activeTab === 'saju' && fortune.dayPillar && fortune.dayYinYang && (
         <>
-          <DayPillarCard dayPillar={fortune.dayPillar} personality={fortune.personality} />
+          <DayPillarCard dayPillar={fortune.dayPillar} dayYinYang={fortune.dayYinYang} personality={fortune.personality} />
+          {fortune.todayPillar && fortune.todayRelationComment && fortune.gains && fortune.losses && fortune.nearTermTrend && (
+            <ElementAnalysisCard
+              todayGanji={fortune.todayPillar.ganji}
+              relationComment={fortune.todayRelationComment}
+              gains={fortune.gains}
+              losses={fortune.losses}
+              trend={fortune.nearTermTrend}
+            />
+          )}
           {fortune.nameAnalysis && (
             <NameElementCard nameAnalysis={fortune.nameAnalysis} relationComment={fortune.nameRelationComment} />
           )}
